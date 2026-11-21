@@ -1,0 +1,20 @@
+{
+	"schemaVersion": 1,
+	"id": "shahedkill",
+	"version": "${version}",
+	"name": "Shahed Kill Effect",
+	"description": "Client-side kill effect: after you kill an entity, a Shahed drone flies in and falls on the target.",
+	"authors": ["WhiteSens"],
+	"contributors": ["Lexik (Shahed model, texture, sound from Skyfront)", "Krutnet (Shahed model, texture, sound from Skyfront)"],
+	"license": "GPL-3.0-or-later",
+	"environment": "client",
+	"entrypoints": {
+		"client": ["com.shahedkill.ShahedKillMod"]
+	},
+	"depends": {
+		"fabricloader": ">=0.20.1",
+		"minecraft": "~1.21.11",
+		"java": ">=21",
+		"fabric-api": "*"
+	}
+}

@@ -1,0 +1,25 @@
+name: inspect-api
+on:
+  push:
+    branches: [inspect]
+
+jobs:
+  inspect:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-java@v5
+        with:
+          java-version: '25'
+          distribution: 'microsoft'
+      - run: chmod +x ./gradlew
+      - run: ./gradlew genSources --stacktrace
+      - name: locate sources
+        run: |
+          J=$(find / -name "*sources.jar" -path "*minecraft*" -not -name "*fabric-api*" 2>/dev/null | head -5)
+          echo "$J"
+          mkdir -p /tmp/mc && cd /tmp/mc && unzip -q -o "$(echo "$J" | head -1)" || true
+          find /tmp/mc -name "Display.java" -o -name "KeyMapping.java" -o -name "Identifier.java" -o -name "ResourceLocation.java" | head
+          echo "MC_SRC=/tmp/mc" >> $GITHUB_ENV
+      - name: dump
+        run: bash scripts/dump.sh /tmp/mc
