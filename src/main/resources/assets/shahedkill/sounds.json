@@ -1,0 +1,7 @@
+{
+  "shahed_engine": {
+    "sounds": [
+      { "name": "shahedkill:shahed_engine", "stream": false }
+    ]
+  }
+}

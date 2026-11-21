@@ -1,0 +1,11 @@
+{
+  "key.shahedkill.open_menu": "Open Kill Effect menu",
+  "key.category.shahedkill.main": "Shahed Kill Effect",
+  "shahedkill.screen.title": "Kill Effect",
+  "shahedkill.screen.effect": "Kill effect: %s",
+  "shahedkill.screen.volume": "Volume: %s%%",
+  "shahedkill.screen.distance": "Flight distance: %s blocks",
+  "shahedkill.screen.test": "Test effect",
+  "shahedkill.effect.off": "Off",
+  "shahedkill.effect.shahed": "Shahed"
+}

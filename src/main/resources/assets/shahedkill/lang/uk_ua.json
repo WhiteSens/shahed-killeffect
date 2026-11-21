@@ -1,0 +1,11 @@
+{
+  "key.shahedkill.open_menu": "Відкрити меню кіл ефекту",
+  "key.category.shahedkill.main": "Shahed Kill Effect",
+  "shahedkill.screen.title": "Кіл ефект",
+  "shahedkill.screen.effect": "Кіл ефект: %s",
+  "shahedkill.screen.volume": "Гучність: %s%%",
+  "shahedkill.screen.distance": "Дальність польоту: %s блоків",
+  "shahedkill.screen.test": "Перевірити ефект",
+  "shahedkill.effect.off": "Вимкнено",
+  "shahedkill.effect.shahed": "Shahed"
+}
