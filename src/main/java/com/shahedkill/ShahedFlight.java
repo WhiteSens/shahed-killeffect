@@ -119,6 +119,7 @@ public final class ShahedFlight {
 			// impact: explosion sound, the drone disappears
 			level.playLocalSound(end.x, end.y, end.z, EXPLOSION_SOUND, SoundSource.NEUTRAL,
 					Math.max(0.05f, Config.volume), 0.95f + level.getRandom().nextFloat() * 0.1f, false);
+			KillEffects.explode(level, end);
 			discard();
 			return false;
 		}

@@ -22,6 +22,7 @@ public final class KillEffects {
 
 	private static final Map<Integer, Long> hits = new HashMap<>();
 	private static final List<ShahedFlight> flights = new ArrayList<>();
+	private static final List<ExplosionEffect> explosions = new ArrayList<>();
 
 	public static void onAttack(Entity target) {
 		if (Config.effect == KillEffectType.OFF) {
@@ -51,6 +52,13 @@ public final class KillEffects {
 			}
 		}
 
+		Iterator<ExplosionEffect> ei = explosions.iterator();
+		while (ei.hasNext()) {
+			if (!ei.next().tick(level)) {
+				ei.remove();
+			}
+		}
+
 		Iterator<ShahedFlight> fi = flights.iterator();
 		while (fi.hasNext()) {
 			ShahedFlight flight = fi.next();
@@ -69,7 +77,13 @@ public final class KillEffects {
 		}
 	}
 
+	/** Visual explosion at the impact point (called by the drone when it hits). */
+	public static void explode(ClientLevel level, Vec3 impact) {
+		explosions.add(new ExplosionEffect(level, impact));
+	}
+
 	public static void clear() {
+		explosions.clear();
 		hits.clear();
 		PetMeme.stop();
 		for (ShahedFlight flight : flights) {
