@@ -45,8 +45,9 @@ public final class KillEffects {
 				it.remove();
 				if (living.getType() == EntityType.CAT || living.getType() == EntityType.WOLF) {
 					PetMeme.play();
+				} else {
+					play(level, living.getBoundingBox().getCenter());
 				}
-				play(level, living.getBoundingBox().getCenter());
 			}
 		}
 

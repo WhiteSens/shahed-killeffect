@@ -35,12 +35,23 @@ public final class PetMeme {
 	public static void register() {
 		HudElementRegistry.attachElementAfter(VanillaHudElements.MISC_OVERLAYS, ShahedKillMod.id("pet_meme"),
 				(graphics, tickCounter) -> render(graphics));
+		// hide the crosshair while the clip is playing
+		HudElementRegistry.replaceElement(VanillaHudElements.CROSSHAIR, original -> (graphics, tickCounter) -> {
+			if (!isActive()) {
+				original.render(graphics, tickCounter);
+			}
+		});
 	}
 
 	public static void play() {
 		startedAt = System.currentTimeMillis();
 		Minecraft.getInstance().getSoundManager()
-				.play(SimpleSoundInstance.forUI(SOUND, 1.0f, Math.max(0.05f, Config.volume)));
+				.play(SimpleSoundInstance.forUI(SOUND, 1.0f, Math.min(1.0f, Math.max(0.05f, Config.volume * 2.0f))));
+	}
+
+	/** True while the clip is on screen. */
+	public static boolean isActive() {
+		return startedAt >= 0 && System.currentTimeMillis() - startedAt < DURATION_MS;
 	}
 
 	public static void stop() {
@@ -61,7 +72,7 @@ public final class PetMeme {
 		Minecraft mc = Minecraft.getInstance();
 		int sw = mc.getWindow().getGuiScaledWidth();
 		int sh = mc.getWindow().getGuiScaledHeight();
-		int h = (int) (sh * 0.5f);
+		int h = (int) (sh * 0.9f);
 		int w = h * FRAME_W / FRAME_H;
 		int x = (sw - w) / 2;
 		int y = (sh - h) / 2;
