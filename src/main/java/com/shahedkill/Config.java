@@ -15,12 +15,16 @@ import java.nio.file.Path;
 public final class Config {
 	public static final int MIN_DISTANCE = 8;
 	public static final int MAX_DISTANCE = 80;
+	public static final float MIN_SPEED = 0.5f;
+	public static final float MAX_SPEED = 3.0f;
 
 	public static KillEffectType effect = KillEffectType.SHAHED;
 	/** 0..1 */
 	public static float volume = 0.8f;
 	/** Horizontal distance (blocks) the Shahed starts its flight from. */
 	public static int distance = 30;
+	/** Flight speed multiplier, 0.5..3.0 */
+	public static float speed = 1.0f;
 
 	private static final Gson GSON = new GsonBuilder().setPrettyPrinting().create();
 
@@ -28,6 +32,7 @@ public final class Config {
 		String effect = KillEffectType.SHAHED.name();
 		float volume = 0.8f;
 		int distance = 30;
+		float speed = 1.0f;
 	}
 
 	private static Path file() {
@@ -52,6 +57,7 @@ public final class Config {
 			}
 			volume = Mth.clamp(data.volume, 0f, 1f);
 			distance = Mth.clamp(data.distance, MIN_DISTANCE, MAX_DISTANCE);
+			speed = data.speed <= 0f ? 1.0f : Mth.clamp(data.speed, MIN_SPEED, MAX_SPEED);
 		} catch (IOException | RuntimeException e) {
 			ShahedKillMod.LOGGER.warn("Could not read config, using defaults", e);
 		}
@@ -62,6 +68,7 @@ public final class Config {
 		data.effect = effect.name();
 		data.volume = volume;
 		data.distance = distance;
+		data.speed = speed;
 		try {
 			Files.createDirectories(file().getParent());
 			try (Writer writer = Files.newBufferedWriter(file())) {

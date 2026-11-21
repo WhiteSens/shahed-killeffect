@@ -34,11 +34,12 @@ public class ShahedConfigScreen extends Screen {
 
 		addRenderableWidget(new VolumeSlider(cx - 100, y + 28, 200, 20));
 		addRenderableWidget(new DistanceSlider(cx - 100, y + 56, 200, 20));
+		addRenderableWidget(new SpeedSlider(cx - 100, y + 84, 200, 20));
 
 		addRenderableWidget(Button.builder(Component.translatable("shahedkill.screen.test"), button -> test())
-				.bounds(cx - 100, y + 90, 200, 20).build());
-		addRenderableWidget(Button.builder(CommonComponents.GUI_DONE, button -> onClose())
 				.bounds(cx - 100, y + 118, 200, 20).build());
+		addRenderableWidget(Button.builder(CommonComponents.GUI_DONE, button -> onClose())
+				.bounds(cx - 100, y + 146, 200, 20).build());
 	}
 
 	private static Component effectLabel() {
@@ -87,6 +88,30 @@ public class ShahedConfigScreen extends Screen {
 		@Override
 		protected void applyValue() {
 			Config.volume = (float) this.value;
+		}
+	}
+
+	private static final class SpeedSlider extends AbstractSliderButton {
+		SpeedSlider(int x, int y, int width, int height) {
+			super(x, y, width, height, Component.empty(),
+					(Config.speed - Config.MIN_SPEED) / (double) (Config.MAX_SPEED - Config.MIN_SPEED));
+			updateMessage();
+		}
+
+		private float speed() {
+			// rounded to 0.1
+			float raw = Config.MIN_SPEED + (float) this.value * (Config.MAX_SPEED - Config.MIN_SPEED);
+			return Mth.clamp(Math.round(raw * 10f) / 10f, Config.MIN_SPEED, Config.MAX_SPEED);
+		}
+
+		@Override
+		protected void updateMessage() {
+			setMessage(Component.translatable("shahedkill.screen.speed", String.format(java.util.Locale.ROOT, "%.1f", speed())));
+		}
+
+		@Override
+		protected void applyValue() {
+			Config.speed = speed();
 		}
 	}
 

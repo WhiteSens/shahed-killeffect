@@ -1,7 +1,7 @@
 {
   "shahed_engine": {
     "sounds": [
-      { "name": "shahedkill:shahed_engine", "stream": false }
+      { "name": "shahedkill:shahed_engine", "stream": false, "attenuation_distance": 100 }
     ]
   }
 }

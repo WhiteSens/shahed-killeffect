@@ -7,6 +7,7 @@ import net.minecraft.client.resources.sounds.AbstractTickableSoundInstance;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.resources.Identifier;
 import net.minecraft.sounds.SoundEvent;
+import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.Display;
@@ -63,6 +64,7 @@ public final class ShahedFlight {
 		if (Config.volume > 0.001f) {
 			this.sound = new EngineSound(this);
 			Minecraft.getInstance().getSoundManager().play(this.sound);
+			ShahedKillMod.LOGGER.info("Shahed engine sound started (volume {})", Config.volume);
 		} else {
 			this.sound = null;
 		}
@@ -79,8 +81,9 @@ public final class ShahedFlight {
 		// Cruise most of the way in a gentle glide, then fall steeply onto the target.
 		Vec3 mid = impact.add(dx * 0.3, height * 0.55, dz * 0.3);
 
-		int cruiseTicks = Math.max(4, (int) Math.round(start.distanceTo(mid) / CRUISE_SPEED));
-		int diveTicks = Math.max(4, (int) Math.round(mid.distanceTo(impact) / DIVE_SPEED));
+		double speed = Config.speed;
+		int cruiseTicks = Math.max(3, (int) Math.round(start.distanceTo(mid) / (CRUISE_SPEED * speed)));
+		int diveTicks = Math.max(3, (int) Math.round(mid.distanceTo(impact) / (DIVE_SPEED * speed)));
 
 		Display.ItemDisplay display = new Display.ItemDisplay(EntityType.ITEM_DISPLAY, level);
 		display.setId(nextEntityId--);
@@ -112,7 +115,10 @@ public final class ShahedFlight {
 			display.setTransformationInterpolationDelay(0);
 			display.setTransformationInterpolationDuration(diveTicks);
 			display.setTransformation(transform(end, diveRotation));
-		} else if (age >= START_AGE + 1 + cruiseTicks + diveTicks + 2) {
+		} else if (age >= START_AGE + 2 + cruiseTicks + diveTicks) {
+			// impact: explosion sound, the drone disappears
+			level.playLocalSound(end.x, end.y, end.z, SoundEvents.GENERIC_EXPLODE.value(), SoundSource.NEUTRAL,
+					Config.volume * 4.0f, 0.85f + level.getRandom().nextFloat() * 0.3f, false);
 			discard();
 			return false;
 		}
@@ -175,8 +181,8 @@ public final class ShahedFlight {
 			super(SoundEvent.createVariableRangeEvent(ENGINE_SOUND), SoundSource.NEUTRAL, flight.display.level().getRandom());
 			this.flight = flight;
 			this.looping = true;
-			// volume > 1 also extends the audible range (16 blocks * volume)
-			this.volume = Math.max(0.0001f, Config.volume * 2.5f);
+			// audible range comes from "attenuation_distance" in sounds.json
+			this.volume = Math.max(0.0001f, Config.volume);
 			Vec3 p = flight.start;
 			this.x = p.x;
 			this.y = p.y;
