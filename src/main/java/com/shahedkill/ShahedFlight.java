@@ -7,7 +7,6 @@ import net.minecraft.client.resources.sounds.AbstractTickableSoundInstance;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.resources.Identifier;
 import net.minecraft.sounds.SoundEvent;
-import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.Display;
@@ -28,6 +27,7 @@ import org.joml.Vector3f;
 public final class ShahedFlight {
 	private static final Identifier MODEL = ShahedKillMod.id("shahed");
 	private static final Identifier ENGINE_SOUND = ShahedKillMod.id("shahed_engine");
+	private static final SoundEvent EXPLOSION_SOUND = SoundEvent.createVariableRangeEvent(ShahedKillMod.id("shahed_explosion"));
 
 	/** The item model is built at half size to fit vanilla element limits; this is the final in-world scale. */
 	private static final float MODEL_SCALE = 1.8f;
@@ -117,8 +117,8 @@ public final class ShahedFlight {
 			display.setTransformation(transform(end, diveRotation));
 		} else if (age >= START_AGE + 2 + cruiseTicks + diveTicks) {
 			// impact: explosion sound, the drone disappears
-			level.playLocalSound(end.x, end.y, end.z, SoundEvents.GENERIC_EXPLODE.value(), SoundSource.NEUTRAL,
-					Config.volume * 4.0f, 0.85f + level.getRandom().nextFloat() * 0.3f, false);
+			level.playLocalSound(end.x, end.y, end.z, EXPLOSION_SOUND, SoundSource.NEUTRAL,
+					Math.max(0.05f, Config.volume), 0.95f + level.getRandom().nextFloat() * 0.1f, false);
 			discard();
 			return false;
 		}

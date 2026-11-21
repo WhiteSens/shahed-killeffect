@@ -2,6 +2,7 @@ package com.shahedkill;
 
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.phys.Vec3;
 
@@ -42,6 +43,9 @@ public final class KillEffects {
 			}
 			if (entity instanceof LivingEntity living && living.isDeadOrDying()) {
 				it.remove();
+				if (living.getType() == EntityType.CAT || living.getType() == EntityType.WOLF) {
+					PetMeme.play();
+				}
 				play(level, living.getBoundingBox().getCenter());
 			}
 		}
@@ -66,6 +70,7 @@ public final class KillEffects {
 
 	public static void clear() {
 		hits.clear();
+		PetMeme.stop();
 		for (ShahedFlight flight : flights) {
 			flight.discard();
 		}

@@ -28,6 +28,7 @@ public class ShahedKillMod implements ClientModInitializer {
 	@Override
 	public void onInitializeClient() {
 		Config.load();
+		PetMeme.register();
 
 		openMenuKey = KeyBindingHelper.registerKeyBinding(new KeyMapping(
 				"key.shahedkill.open_menu",

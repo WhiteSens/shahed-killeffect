@@ -3,5 +3,15 @@
     "sounds": [
       { "name": "shahedkill:shahed_engine", "stream": false, "attenuation_distance": 100 }
     ]
+  },
+  "shahed_explosion": {
+    "sounds": [
+      { "name": "shahedkill:shahed_explosion", "stream": false, "attenuation_distance": 160 }
+    ]
+  },
+  "pet_meme": {
+    "sounds": [
+      { "name": "shahedkill:meme", "stream": false }
+    ]
   }
 }
