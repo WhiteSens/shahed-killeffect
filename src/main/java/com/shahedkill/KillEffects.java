@@ -103,11 +103,11 @@ public final class KillEffects {
 				it.remove();
 				long since = now - track.hitTime;
 				boolean pearl = pearlNear(now, track.lastPos);
-				boolean weak = track.healthVaried && track.lastHealth > KILL_MAX_HEALTH;
+				boolean weak = false; // health gate disabled: servers often show the last health before the kill, which proves nothing
 				Minecraft mc = Minecraft.getInstance();
 				boolean near = mc.player != null && mc.player.position().distanceTo(track.lastPos) <= VANISH_MAX_PLAYER_DISTANCE;
 				if (since <= VANISH_WINDOW_TICKS && !pearl && !weak && near) {
-					ShahedKillMod.LOGGER.info("[kill] id {} vanished {} ticks after the hit -> kill", e.getKey(), since);
+					ShahedKillMod.LOGGER.info("[kill] id {} vanished {} ticks after the hit (last health {}) -> kill", e.getKey(), since, track.lastHealth);
 					kill(level, track.lastPos, track.type);
 				} else {
 					ShahedKillMod.LOGGER.info("[kill] id {} vanished, ignored (since={}, pearl={}, healthy={}, near={})", e.getKey(), since, pearl, weak, near);
@@ -137,9 +137,9 @@ public final class KillEffects {
 				it.remove();
 				long since = now - track.hitTime;
 				boolean pearl = pearlNear(now, track.lastPos);
-				boolean weak = track.healthVaried && track.lastHealth > KILL_MAX_HEALTH;
+				boolean weak = false; // health gate disabled: servers often show the last health before the kill, which proves nothing
 				if (since <= VANISH_WINDOW_TICKS && !pearl && !weak) {
-					ShahedKillMod.LOGGER.info("[kill] id {} teleported {} ticks after the hit -> kill", e.getKey(), since);
+					ShahedKillMod.LOGGER.info("[kill] id {} teleported {} ticks after the hit (last health {}) -> kill", e.getKey(), since, track.lastHealth);
 					kill(level, track.lastPos, track.type);
 				} else {
 					ShahedKillMod.LOGGER.info("[kill] id {} teleported, ignored (since={}, pearl={}, healthy={})", e.getKey(), since, pearl, weak);
