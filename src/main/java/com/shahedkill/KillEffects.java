@@ -37,7 +37,8 @@ public final class KillEffects {
 	private static final class Track {
 		long hitTime;
 		Vec3 lastPos;
-		long pearlSeen = Long.MIN_VALUE / 2;
+		float lastHealth = -1;
+		boolean healthVaried;
 		final EntityType<?> type;
 
 		Track(long hitTime, Vec3 lastPos, EntityType<?> type) {
@@ -46,6 +47,14 @@ public final class KillEffects {
 			this.type = type;
 		}
 	}
+
+	/** If health is synced by the server, only low-health targets can have been killed by a hit. */
+	private static final float KILL_MAX_HEALTH = 14.0f;
+	/** Any ender pearl within this distance of the target counts as "the target teleported itself". */
+	private static final double PEARL_RADIUS = 96.0;
+
+	private static long pearlSeenTime = Long.MIN_VALUE / 2;
+	private static Vec3 pearlSeenPos = Vec3.ZERO;
 
 	private static final Map<Integer, Track> hits = new HashMap<>();
 	private static final List<ShahedFlight> flights = new ArrayList<>();
@@ -68,6 +77,15 @@ public final class KillEffects {
 	public static void tick(ClientLevel level) {
 		long now = level.getGameTime();
 
+		if (!hits.isEmpty()) {
+			for (Entity other : level.entitiesForRendering()) {
+				if (other.getType() == EntityType.ENDER_PEARL) {
+					pearlSeenTime = now;
+					pearlSeenPos = other.position();
+				}
+			}
+		}
+
 		Iterator<Map.Entry<Integer, Track>> it = hits.entrySet().iterator();
 		while (it.hasNext()) {
 			Map.Entry<Integer, Track> e = it.next();
@@ -84,14 +102,15 @@ public final class KillEffects {
 				// the target vanished from the client world
 				it.remove();
 				long since = now - track.hitTime;
-				boolean pearl = now - track.pearlSeen <= PEARL_MEMORY_TICKS;
+				boolean pearl = pearlNear(now, track.lastPos);
+				boolean weak = track.healthVaried && track.lastHealth > KILL_MAX_HEALTH;
 				Minecraft mc = Minecraft.getInstance();
 				boolean near = mc.player != null && mc.player.position().distanceTo(track.lastPos) <= VANISH_MAX_PLAYER_DISTANCE;
-				if (since <= VANISH_WINDOW_TICKS && !pearl && near) {
+				if (since <= VANISH_WINDOW_TICKS && !pearl && !weak && near) {
 					ShahedKillMod.LOGGER.info("[kill] id {} vanished {} ticks after the hit -> kill", e.getKey(), since);
 					kill(level, track.lastPos, track.type);
 				} else {
-					ShahedKillMod.LOGGER.info("[kill] id {} vanished, ignored (since={}, pearl={}, near={})", e.getKey(), since, pearl, near);
+					ShahedKillMod.LOGGER.info("[kill] id {} vanished, ignored (since={}, pearl={}, healthy={}, near={})", e.getKey(), since, pearl, weak, near);
 				}
 				continue;
 			}
@@ -105,24 +124,25 @@ public final class KillEffects {
 				continue;
 			}
 
-			// remember pearls thrown by the target
-			for (Entity other : level.entitiesForRendering()) {
-				if (other.getType() == EntityType.ENDER_PEARL && other instanceof Projectile p && p.getOwner() == entity) {
-					track.pearlSeen = now;
-					break;
+			if (entity instanceof LivingEntity living2) {
+				float h = living2.getHealth();
+				if (track.lastHealth >= 0 && Math.abs(h - track.lastHealth) > 0.01f) {
+					track.healthVaried = true;
 				}
+				track.lastHealth = h;
 			}
 
 			// sudden teleport right after our hit (servers that "respawn" the target silently)
 			if (center.distanceTo(track.lastPos) > TELEPORT_DISTANCE) {
 				it.remove();
 				long since = now - track.hitTime;
-				boolean pearl = now - track.pearlSeen <= PEARL_MEMORY_TICKS;
-				if (since <= VANISH_WINDOW_TICKS && !pearl) {
+				boolean pearl = pearlNear(now, track.lastPos);
+				boolean weak = track.healthVaried && track.lastHealth > KILL_MAX_HEALTH;
+				if (since <= VANISH_WINDOW_TICKS && !pearl && !weak) {
 					ShahedKillMod.LOGGER.info("[kill] id {} teleported {} ticks after the hit -> kill", e.getKey(), since);
 					kill(level, track.lastPos, track.type);
 				} else {
-					ShahedKillMod.LOGGER.info("[kill] id {} teleported, ignored (since={}, pearl={})", e.getKey(), since, pearl);
+					ShahedKillMod.LOGGER.info("[kill] id {} teleported, ignored (since={}, pearl={}, healthy={})", e.getKey(), since, pearl, weak);
 				}
 				continue;
 			}
@@ -143,6 +163,10 @@ public final class KillEffects {
 				fi.remove();
 			}
 		}
+	}
+
+	private static boolean pearlNear(long now, Vec3 pos) {
+		return now - pearlSeenTime <= PEARL_MEMORY_TICKS && pearlSeenPos.distanceTo(pos) <= PEARL_RADIUS;
 	}
 
 	private static void kill(ClientLevel level, Vec3 pos, EntityType<?> type) {
